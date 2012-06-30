@@ -1,0 +1,39 @@
+=pod
+
+=head2 Rex::Endpoint::HTTP
+
+This is a HTTP Endpoint for Rex. So it is possible to use Rex without SSH.
+
+=head2 DEPENDENCIES
+
+=over 4
+
+=item Mojolicious
+
+=back
+
+=head2 INSTALLATION
+
+First you have to install Mojolicious. You can download it from CPAN or L<http://mojolicio.us>.
+
+After that you can clone this repository.
+
+ git clone git://github.com/krimdomu/rex-endpoint-http.git
+ cd rex-endpoint-http
+
+=head2 USAGE
+
+To start the server type:
+
+ rex_endpoint_http daemon -l 'http://:80'
+
+After that a http daemon listens on port 80. You can tell your Rexfile to connect through http by specifying the connection type.
+
+ set user => "root";
+ set password => "foobar";
+    
+ set connection => "http";
+    
+ task "test", "server1", "server2", sub {
+    say run "uptime";
+ };
