@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::JSON;
 use Mojo::Upload;
 use Data::Dumper;
-use Cwd;
+use MIME::Base64;
 
 # This action will render a template
 sub ls {
@@ -64,9 +64,22 @@ sub mkdir {
 sub stat {
    my $self = shift;
 
-   my %stat = CORE::stat($self->_path);
+   if(my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
+               $atime, $mtime, $ctime, $blksize, $blocks) = CORE::stat($self->_path)) {
 
-   $self->render_json({ok => Mojo::JSON->true, stat => \%stat});
+         my %ret;
+
+         $ret{'mode'}  = sprintf("%04o", $mode & 07777); 
+         $ret{'size'}  = $size;
+         $ret{'uid'}   = $uid;
+         $ret{'gid'}   = $gid;
+         $ret{'atime'} = $atime;
+         $ret{'mtime'} = $mtime;
+
+         return $self->render_json({ok => Mojo::JSON->true, stat => \%ret});
+   }
+
+   $self->render_json({ok => Mojo::JSON->false}, status => 404);
 }
 
 sub is_readable {
@@ -132,15 +145,128 @@ sub upload {
 sub download {
    my $self = shift;
 
-   # is there a better way to serve static files?
-   my $path = getcwd();
-   $path =~ s/[^\/]+/../g;
-
-   if(! -f "../$path" . $self->_path) {
+   if(! -f $self->_path) {
       return $self->render_json({ok => Mojo::JSON->false}, status => 404);
    }
 
-   $self->render_static("../" . $path . $self->_path);
+   my $content = eval { local(@ARGV, $/) = ($self->_path); <>; };
+
+   $self->render_json({
+      ok => Mojo::JSON->true,
+      content => encode_base64($content),
+   });
+}
+
+sub ln {
+   my $self = shift;
+
+   my $ref = $self->req->json;
+
+   if(-f $ref->{to}) {
+      CORE::unlink($ref->{to});
+   }
+
+   CORE::symlink($ref->{from}, $ref->{to}) and
+      return $self->render_json({ok => Mojo::JSON->true});
+
+   $self->render_json({ok => Mojo::JSON->false});
+}
+
+sub rmdir {
+   my $self = shift;
+
+   system("rm -rf " . $self->_path);
+
+   if($? == 0) {
+      return $self->render_json({ok => Mojo::JSON->true});
+   }
+
+   $self->render_json({ok => Mojo::JSON->false});
+}
+
+sub chown {
+   my $self = shift;
+
+   my $ref = $self->req->json;
+
+   my $user = $ref->{user};
+   my $file = $self->_path;
+   my $options = $ref->{options};
+
+   my $recursive = "";
+   if(exists $options->{"recursive"} && $options->{"recursive"} == 1) {
+      $recursive = " -R ";
+   }
+
+   system("chown $recursive $user $file");
+
+   if($? == 0) {
+      return $self->render_json({ok => Mojo::JSON->true});
+   }
+
+   $self->render_json({ok => Mojo::JSON->false});
+}
+
+sub chgrp {
+   my $self = shift;
+
+   my $ref = $self->req->json;
+   my $group = $ref->{group};
+   my $file = $self->_path;
+
+   my $options = $ref->{options};
+
+   my $recursive = "";
+   if(exists $options->{"recursive"} && $options->{"recursive"} == 1) {
+      $recursive = " -R ";
+   }
+
+   system("chgrp $recursive $group $file");
+
+   if($? == 0) {
+      return $self->render_json({ok => Mojo::JSON->true});
+   }
+
+   $self->render_json({ok => Mojo::JSON->false});
+}
+
+sub chmod {
+   my $self = shift;
+
+   my $ref = $self->req->json;
+   my $mode = $ref->{mode};
+   my $file = $self->_path;
+   my $options = $ref->{options};
+
+   my $recursive = "";
+   if(exists $options->{"recursive"} && $options->{"recursive"} == 1) {
+      $recursive = " -R ";
+   }
+
+   system("chmod $recursive $mode $file");
+
+   if($? == 0) {
+      return $self->render_json({ok => Mojo::JSON->true});
+   }
+
+   $self->render_json({ok => Mojo::JSON->false});
+}
+
+sub cp {
+   my $self = shift;
+
+   my $ref = $self->req->json;
+
+   my $source = $ref->{source};
+   my $dest   = $ref->{dest};
+
+   system("cp -R $source $dest");
+
+   if($? == 0) {
+      return $self->render_json({ok => Mojo::JSON->true});
+   }
+
+   $self->render_json({ok => Mojo::JSON->false});
 }
 
 sub _path {

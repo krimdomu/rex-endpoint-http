@@ -14,6 +14,8 @@ sub startup {
    my $r = $self->routes;
 
    # Normal route to controller
+   $r->get("/")->to("base#index");
+
    $r->post("/login")->to("login#index");
    $r->post("/execute")->to("execute#index");
 
@@ -36,6 +38,15 @@ sub startup {
 
    $r->post("/fs/upload")->to("fs#upload");
    $r->post("/fs/download")->to("fs#download");
+
+   $r->post("/fs/rmdir")->to("fs#rmdir");
+   $r->post("/fs/ln")->to("fs#ln");
+
+   $r->post("/fs/chown")->to("fs#chown");
+   $r->post("/fs/chgrp")->to("fs#chgrp");
+   $r->post("/fs/chmod")->to("fs#chmod");
+
+   $r->post("/fs/cp")->to("fs#cp");
 }
 
 1;
