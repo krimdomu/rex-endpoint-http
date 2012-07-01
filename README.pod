@@ -20,6 +20,10 @@ After that you can clone this repository.
 
  git clone git://github.com/krimdomu/rex-endpoint-http.git
  cd rex-endpoint-http
+ perl Makefile.PL
+ make
+ make test
+ make install
 
 =head2 USAGE
 
