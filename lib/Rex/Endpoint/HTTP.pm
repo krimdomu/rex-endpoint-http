@@ -1,7 +1,7 @@
 package Rex::Endpoint::HTTP;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = "0.0.5";
+our $VERSION = "0.0.6";
 
 BEGIN {
     $ENV{MOJO_MAX_MESSAGE_SIZE} = 2 * 1024 * 1024 * 1024; # 2 GB
