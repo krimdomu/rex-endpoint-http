@@ -12,7 +12,7 @@ sub index {
 
    my $out = qx{$cmd};
 
-   $self->render_json({ok => Mojo::JSON->true, output => $out});
+   $self->render_json({ok => Mojo::JSON->true, output => $out, retval => $?});
 }
 
 1;

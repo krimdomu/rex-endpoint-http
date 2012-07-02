@@ -1,7 +1,7 @@
 package Rex::Endpoint::HTTP;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = "0.0.2";
+our $VERSION = "0.0.4";
 
 # This method will run once at server start
 sub startup {
