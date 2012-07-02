@@ -1,7 +1,7 @@
 package Rex::Endpoint::HTTP;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = "0.0.1";
+our $VERSION = "0.0.2";
 
 # This method will run once at server start
 sub startup {
@@ -47,6 +47,15 @@ sub startup {
    $r->post("/fs/chmod")->to("fs#chmod");
 
    $r->post("/fs/cp")->to("fs#cp");
+
+   $r->post("/file/open")->to("file#open");
+   $r->post("/file/close")->to("file#close");
+   $r->post("/file/read")->to("file#read");
+
+   # this seems odd, but "write" is not allowed as an action
+   $r->post("/file/write_fh")->to("file#write_fh");
+
+   $r->post("/file/seek")->to("file#seek");
 }
 
 1;
