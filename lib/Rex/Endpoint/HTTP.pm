@@ -11,8 +11,18 @@ BEGIN {
 sub startup {
    my $self = shift;
 
-   # Documentation browser under "/perldoc"
-   #$self->plugin('PODRenderer');
+   my @cfg = ("/etc/rex/httpd.conf", "/usr/local/etc/rex/httpd.conf", "httpd.conf");
+   my $cfg;
+   for my $file (@cfg) {
+      if(-f $file) {
+         $cfg = $file;
+         last;
+      }
+   }
+   $self->plugin('Config', file => $cfg);
+
+   # do authentication
+   $self->plugin("Rex::Endpoint::HTTP::Mojolicious::Plugin::Auth");
 
    # Router
    my $r = $self->routes;
