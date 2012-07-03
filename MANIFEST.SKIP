@@ -20,3 +20,4 @@ MANIFEST\..*
 .*\.yml$
 .*\.conf$
 .*\.log$
+.*\.db
