@@ -62,7 +62,7 @@ sub register {
          }
       }
 
-      $mojo->res->headers->www_authenticate("Basic realm=\"Authentication Required\"");
+      $mojo->res->headers->www_authenticate("Basic realm=\"Rex::Endpoint::HTTP\"");
       $mojo->res->code(401);
       $mojo->rendered;
 
