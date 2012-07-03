@@ -31,6 +31,36 @@ To start the server type:
 
  rex_endpoint_http daemon -l 'http://:80'
 
+You need to create a configuration file in one of the following locations:
+
+=over 4
+
+=item *
+
+/etc/rex/httpd.conf
+
+=item *
+
+/usr/local/etc/rex/httpd.conf
+
+=back
+
+There you can define the file for the user authentication.
+
+ {
+    user_file => '/etc/rex/user.db',
+ }
+
+This file consist of user and password tupels.
+
+ username:sha1cryptedpassword
+ username2:sha1cryptedpassword2
+
+You can create the sha1 strings with the following command.
+
+ perl -MDigest::SHA1 -le 'print Digest::SHA1::sha1_hex("your-password")'
+
+
 After that a http daemon listens on port 80. You can tell your Rexfile to connect through http by specifying the connection type.
 
  set user => "root";
