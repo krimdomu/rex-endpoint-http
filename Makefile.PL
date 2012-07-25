@@ -14,6 +14,7 @@ WriteMakefile1(
    },
    BUILD_REQUIRES => {
       'Mojolicious' => '2.98',
+      'Digest::SHA1' => 0,
    },
 
    NAME => 'Rex::Endpoint::HTTP',
