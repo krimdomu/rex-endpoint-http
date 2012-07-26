@@ -1,4 +1,13 @@
 #!/usr/bin/env perl
+
+#
+# (c) Jan Gehring <jan.gehring@gmail.com>
+# 
+# vim: set ts=3 sw=3 tw=0:
+# vim: set expandtab:
+   
+
+
 use Mojo::Base -strict;
 
 use File::Basename 'dirname';
@@ -12,3 +21,101 @@ my $lib = join('/', @base, 'lib');
 # Start commands for application
 require Mojolicious::Commands;
 Mojolicious::Commands->start_app('Rex::Endpoint::HTTP');
+
+
+=pod
+
+=head1 NAME
+
+Rex::Endpoint::HTTP - Execute Rex over HTTP
+
+=head1 DESCRIPTION
+
+This is a replacement for the default SSH endpoint of Rex.
+
+=head1 DEPENDENCIES
+
+=over 4
+
+=item * Mojolicious
+
+=item * Digest::SHA1
+
+=back
+
+=head1 CONFIGURATION
+
+rex_endpoint_http search at multiple locations for the configuration file.
+
+=over 4
+
+=item * /etc/rex/httpd.conf
+
+=item * /usr/local/etc/rex/httpd.conf
+
+=item * ./httpd.conf
+
+=back
+
+Please create a file in one of the locations with the following content:
+
+ {
+    user_file => "/path/to/your/user.db",
+ }
+
+You also have to create a user database for the authentication.
+
+This file exists of 2 columns seperated by ":". 
+
+ username:sha1crypted-password
+
+You can create the sha1 strings with the following command.
+
+ perl -MDigest::SHA1 -le 'print Digest::SHA1::sha1_hex("your-password")'
+
+
+=head1 DEPLOYMENTS
+
+You can deploy Rex::Endpoint:HTTP in different ways. We suggest to use Apache or nginx as a frontend server to the build in webserver and to offload SSL. So it is possible to authenticate also with an SSL client certificate (not yet) or with other authentication schemas.
+
+=head2 No Frontend Webserver
+
+This is not the recommended installation but the simpelst one. Please use this only for testing purpose.
+
+You can start the build-in webserver just by executing the following command:
+
+ rex_endpoint_http daemon -l 'http://*:80'
+
+After that you can set your Rexfile to connect via http and execute your commands as usual.
+
+ # Rexfile
+ set connection => "http";
+
+=head2 Simple Apache installation
+
+Just install Apache on your server and create a new SSL enabled virtual host.
+
+Here is an example configuration.
+
+ <VirtualHost _default_:443>
+    ServerName d6http01.your-domain.com
+    ServerAlias d6http01
+      
+    SSLEngine on
+      
+    SSLCertificateFile    /etc/ssl/certs/d6http01.pem
+    SSLCertificateKeyFile /etc/ssl/private/d6http01.key
+      
+    ProxyPass / http://localhost:3000/
+    ProxyPassReverse / http://localhost:3000/
+ </VirtualHost>
+
+Than you can just start apache and the Rex Endpoint.
+
+ bash# /etc/init.d/apache2 start  (debian/ubuntu)
+ bash# /etc/init.d/httpd start (redhat compatible)
+    
+ bash# rex_endpoint_http daemon
+
+
+=cut

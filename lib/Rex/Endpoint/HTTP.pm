@@ -1,7 +1,38 @@
+#
+# (c) Jan Gehring <jan.gehring@gmail.com>
+# 
+# vim: set ts=3 sw=3 tw=0:
+# vim: set expandtab:
+   
+=head1 NAME
+
+Rex::Endpoint::HTTP - Execute Rex over HTTP
+
+=head1 DESCRIPTION
+
+This is a replacement for the default SSH endpoint of Rex.
+
+=head1 DEPENDENCIES
+
+=over 4
+
+=item * Mojolicious
+
+=item * Digest::SHA1
+
+=back
+
+=head1 DOCUMENTATION
+
+Read the manpage of rex_endpoint_http for the complete documentation.
+
+=cut
+
+
 package Rex::Endpoint::HTTP;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = "0.0.8";
+our $VERSION = "0.0.9";
 
 BEGIN {
     $ENV{MOJO_MAX_MESSAGE_SIZE} = 2 * 1024 * 1024 * 1024; # 2 GB
