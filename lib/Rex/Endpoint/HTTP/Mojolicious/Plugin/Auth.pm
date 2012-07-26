@@ -7,6 +7,12 @@
 package Rex::Endpoint::HTTP::Mojolicious::Plugin::Auth;
 
 
+#
+# HTTP Header
+#
+# Apache:
+# X-Forwarded-For -> $IP/$NAME
+
 use strict;
 use warnings;
 
