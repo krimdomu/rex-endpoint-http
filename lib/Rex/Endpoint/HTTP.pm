@@ -32,7 +32,7 @@ Read the manpage of rex_endpoint_http for the complete documentation.
 package Rex::Endpoint::HTTP;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = "0.0.9";
+our $VERSION = "0.0.12";
 
 BEGIN {
     $ENV{MOJO_MAX_MESSAGE_SIZE} = 2 * 1024 * 1024 * 1024; # 2 GB
@@ -50,10 +50,16 @@ sub startup {
          last;
       }
    }
-   $self->plugin('Config', file => $cfg);
 
-   # do authentication
-   $self->plugin("Rex::Endpoint::HTTP::Mojolicious::Plugin::Auth");
+   if(-f $cfg) {
+      # load config if available
+      $self->plugin('Config', file => $cfg);
+
+      # do authentication, if needed
+      if(exists $self->{defaults}->{config} && exists $self->{defaults}->{config}->{user_file}) {
+         $self->plugin("Rex::Endpoint::HTTP::Mojolicious::Plugin::Auth");
+      }
+   }
 
    # Router
    my $r = $self->routes;
