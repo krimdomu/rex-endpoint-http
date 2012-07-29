@@ -138,7 +138,7 @@ After that you can copy the cert file from ca/certs/$cn.crt and the keyfile from
 
 =head1 DEPLOYMENTS
 
-You can deploy Rex::Endpoint:HTTP in different ways. We suggest to use Apache or nginx as a frontend server to the build in webserver and to offload SSL. So it is possible to authenticate also with an SSL client certificate or with other authentication schemas.
+You can deploy Rex::Endpoint::HTTP in different ways. We suggest to use Apache or nginx as a frontend server to the build in webserver and to offload SSL. So it is possible to authenticate also with an SSL client certificate or with other authentication schemas.
 
 =head2 No Frontend Webserver
 
@@ -201,6 +201,6 @@ If you want to use HTTPS/SSL Authentication use this:
 
 =head1 INIT
 
-You can download an init script from I<https://github.com/krimdomu/rex-endpoint-http/doc>.
+You can download an init script from I<https://github.com/krimdomu/rex-endpoint-http/tree/master/doc>.
 
 =cut
