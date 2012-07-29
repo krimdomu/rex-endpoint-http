@@ -32,7 +32,7 @@ Read the manpage of rex_endpoint_http for the complete documentation.
 package Rex::Endpoint::HTTP;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = "0.0.12";
+our $VERSION = "0.0.13";
 
 BEGIN {
     $ENV{MOJO_MAX_MESSAGE_SIZE} = 2 * 1024 * 1024 * 1024; # 2 GB
@@ -43,7 +43,7 @@ sub startup {
    my $self = shift;
 
    my @cfg = ("/etc/rex/httpd.conf", "/usr/local/etc/rex/httpd.conf", "httpd.conf");
-   my $cfg;
+   my $cfg = "httpd.conf";
    for my $file (@cfg) {
       if(-f $file) {
          $cfg = $file;

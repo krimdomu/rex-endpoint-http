@@ -45,9 +45,9 @@ This is a replacement for the default SSH endpoint of Rex.
 
 =head1 CONFIGURATION
 
-=head2 Basic Authentication
+=head2 Configuration File
 
-rex_endpoint_http search at multiple locations for the configuration file. Right now only the path to the user database is configured there. If you want to use SSL authentication you don't need this file.
+rex_endpoint_http search at multiple locations for the configuration file. In this file you can define a user database file and configure the build in webserver (hypnotoad from Mojolicious).
 
 =over 4
 
@@ -59,11 +59,45 @@ rex_endpoint_http search at multiple locations for the configuration file. Right
 
 =back
 
-Please create a file in one of the locations with the following content:
+The format of the file is a Perl Hash Reference. So you have to start and end the file with braces. 
+
+ {
+    key1 => "value1",
+    key2 => "value2",
+ };
+
+=head2 Configure Hypnotoad
+
+As a default hypnotoad listens on every device on port 8080. This is a thing you want to change on production servers. To configure hypnotoad you have to add a new section.
+
+ hypnotoad => {
+    listen => ['http://127.0.0.1:8080'],
+ },
+
+The full file may look like this:
+
+ {
+    hypnotoad => {
+       listen => ['http://127.0.0.1:8080'],
+    },
+ };
+
+=head2 User/Password Authentication
+
+If you want to use basic user/password authentication you have to add the location of the user file into the configuration. The key is I<user_file>.
+
+ user_file => "/path/to/your/user.db",
+
+The fill file may look like this:
 
  {
     user_file => "/path/to/your/user.db",
- }
+       
+    # configure hypnotoad
+    hypnotoad => {
+       listen => ['http://127.0.0.1:8080'],
+    },
+ };
 
 You also have to create a user database for the authentication.
 
@@ -101,8 +135,8 @@ This is an example configuration of Apache:
     <Location />
        RequestHeader set SSL_CLIENT_VERIFY "%{SSL_CLIENT_VERIFY}s"
        
-       ProxyPass http://localhost:3000/
-       ProxyPassReverse http://localhost:3000/
+       ProxyPass http://localhost:8080/
+       ProxyPassReverse http://localhost:8080/
    </Location>
    
  </VirtualHost>
@@ -159,8 +193,8 @@ Here is an example configuration.
     SSLCertificateFile    /etc/ssl/certs/d6http01.crt
     SSLCertificateKeyFile /etc/ssl/private/d6http01.key
       
-    ProxyPass / http://localhost:3000/
-    ProxyPassReverse / http://localhost:3000/
+    ProxyPass / http://localhost:8080/
+    ProxyPassReverse / http://localhost:8080/
  </VirtualHost>
 
 Than you can just start apache and the Rex Endpoint.
@@ -168,7 +202,7 @@ Than you can just start apache and the Rex Endpoint.
  bash# /etc/init.d/apache2 start  (debian/ubuntu)
  bash# /etc/init.d/httpd start (redhat compatible)
     
- bash# rex_endpoint_http daemon
+ bash# rex_endpoint_http daemon -l 'http://127.0.0.1:8080'
 
 =head1 USAGE
 
@@ -189,5 +223,9 @@ If you want to use HTTPS/SSL Authentication use this:
  set cert => "/path/to/client-cert-file.crt";
  set key => "/path/to/client-key-file.key"; 
 
+
+=head1 INIT
+
+You can download an init script from I<https://github.com/krimdomu/rex-endpoint-http/doc>.
 
 =cut
