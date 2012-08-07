@@ -3,7 +3,7 @@
 use ExtUtils::MakeMaker;
 
 my %deps = (
-                  'Mojolicious' => '2.98',
+                  'Mojolicious' => '3.20',
 );
 
 WriteMakefile1(
@@ -13,7 +13,7 @@ WriteMakefile1(
       },
    },
    BUILD_REQUIRES => {
-      'Mojolicious' => '2.98',
+      'Mojolicious' => '3.20',
       'Digest::SHA1' => 0,
    },
 

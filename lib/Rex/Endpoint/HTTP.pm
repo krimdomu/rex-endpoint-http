@@ -32,7 +32,7 @@ Read the manpage of rex_endpoint_http for the complete documentation.
 package Rex::Endpoint::HTTP;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = "0.0.13";
+our $VERSION = "0.31.0";
 
 BEGIN {
     $ENV{MOJO_MAX_MESSAGE_SIZE} = 2 * 1024 * 1024 * 1024; # 2 GB

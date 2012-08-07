@@ -5,19 +5,22 @@
 
 Summary: HTTP Communication Daemon for Rex
 Name: rex-endpoint-http
-Version: 0.0.10
+Version: 0.31.0
 Release: 1
 License: Apache 2.0
 Group: Utilities/System
-Source: http://search.cpan.org/CPAN/authors/id/J/JF/JFRIED/Rex-Endpoint-HTTP-0.0.10.tar.gz
+Source: http://search.cpan.org/CPAN/authors/id/J/JF/JFRIED/Rex-Endpoint-HTTP-0.31.0.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
-BuildRequires: mojolicious
+BuildRequires: perl-Mojolicious
 BuildRequires: perl >= 5.10.1
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: perl(Digest::SHA1)
+Requires: perl-IO-Socket-SSL >= 1.75
 Requires: perl >= 5.10.1
-Requires: mojolicious
+Requires: perl-Digest-SHA1 >= 5.10.1
+Requires: perl-Mojolicious
+Requires: perl-EV
 
 %description
 Rex is a tool to ease the execution of commands on multiple remote 
@@ -35,6 +38,9 @@ your terminal. This is the HTTP Protocol Endpoint.
 %install
 %{__rm} -rf %{buildroot}
 %{__make} pure_install
+mkdir -p %{buildroot}/etc/init.d
+cp doc/rex-endpoint-http.spec %{buildroot}/etc/init.d/rex-endpoint-http
+chmod 0755 %{buildroot}/etc/init.d/rex-endpoint-http
 
 ### Clean up buildroot
 find %{buildroot} -name .packlist -exec %{__rm} {} \;
@@ -52,5 +58,5 @@ find %{buildroot} -name .packlist -exec %{__rm} {} \;
 
 %changelog
 
-* Mon Jul 2 2012 Jan Gehring <jan.gehring at, gmail.com> 0.0.10-1
+* Mon Jul 2 2012 Jan Gehring <jan.gehring at, gmail.com> 0.31.0-1
 - inital package 

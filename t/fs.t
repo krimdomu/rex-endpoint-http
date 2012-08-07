@@ -1,6 +1,6 @@
 use Mojo::Base -strict;
 
-use Test::More tests => 63;
+use Test::More tests => 68;
 use Test::Mojo;
 
 my $t = Test::Mojo->new("Rex::Endpoint::HTTP");

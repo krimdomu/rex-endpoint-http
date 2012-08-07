@@ -20,18 +20,23 @@
 DAEMON=/usr/bin/rex_endpoint_http
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin
 NAME="Rex-Endpoint-HTTP"
-DESC="Start the HTTP Endpoint for Rex"
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0
 
-# Load the VERBOSE setting and other rcS variables
-. /lib/init/vars.sh
+log_daemon_msg()
+{
+   echo -n $*
+}
 
-# Define LSB log_* functions.
-# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
-# and status_of_proc is working.
-. /lib/lsb/init-functions
+log_end_msg()
+{
+   if [ "$1" = "0" ]; then
+      echo "[ok]"
+   else
+      echo "[failed]"
+   fi
+}
 
 #
 # Function that starts the daemon/service
@@ -81,7 +86,7 @@ do_status()
 
 case "$1" in
   start)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
+	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $NAME"
 	do_start
 	case "$?" in
 		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
@@ -89,7 +94,7 @@ case "$1" in
 	esac
 	;;
   stop)
-	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
+	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $NAME"
 	do_stop
 	case "$?" in
 		0|1) [ "$VERBOSE" != no ] && log_end_msg 0 ;;
@@ -100,7 +105,7 @@ case "$1" in
    pidof $DAEMON >/dev/null 2>&1
    ;;
   restart)
-	log_daemon_msg "Restarting $DESC" "$NAME"
+	log_daemon_msg "Restarting $NAME"
 	do_stop
 	sleep 1
 	do_start

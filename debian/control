@@ -1,0 +1,22 @@
+Source: rex-endpoint-http
+Section: admin
+Priority: optional
+Maintainer: Jan Gehring <jan.gehring@gmail.com>
+Build-Depends: debhelper (>= 7),
+                  perl (>= 5.10.1),
+                  libmojolicious-perl (>= 3.20),
+                  libdigest-sha1-perl
+Standards-Version: 3.9.1
+Homepage: http://rexify.org/
+
+Package: rex
+Architecture: all
+Depends: ${misc:Depends},
+            ${perl:Depends},
+            libmojolicious-perl (>= 3.20),
+            libdigest-sha1-perl
+Description: Remote Execution
+ (R)?ex is a small script to ease the execution of remote commands. You can
+ write small tasks in a file named Rexfile.
+ .
+ You can find examples and howtos on http://rexify.org/.
