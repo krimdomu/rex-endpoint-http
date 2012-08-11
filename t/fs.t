@@ -1,6 +1,6 @@
 use Mojo::Base -strict;
 
-use Test::More tests => 68;
+use Test::More tests => 65;
 use Test::Mojo;
 
 my $t = Test::Mojo->new("Rex::Endpoint::HTTP");
@@ -16,7 +16,6 @@ $t->post_json_ok("/fs/stat" => { path => "/tmp/testdir" })->status_is(200)->json
 $t->post_json_ok("/fs/rmdir" => { path => "/tmp/testdir" })->status_is(200)->json_is("/ok" => 1);
 $t->post_json_ok("/fs/is_dir" => { path => "/tmp/testdir" })->status_is(200)->json_is("/ok" => 0);
 $t->post_json_ok("/fs/is_readable" => { path => "/etc/passwd" })->status_is(200)->json_is("/ok" => 1);
-$t->post_json_ok("/fs/is_readable" => { path => "/etc/shadow" })->status_is(200)->json_is("/ok" => 0);
 $t->post_json_ok("/fs/is_writable" => { path => "/tmp" })->status_is(200)->json_is("/ok" => 1);
 $t->post_json_ok("/fs/ln" => { from => "/etc/passwd", to => "/tmp/pass.wd" })->status_is(200)->json_is("/ok" => 1);
 $t->post_json_ok("/fs/readlink" => { path => "/tmp/pass.wd" })->status_is(200)->json_is("/ok" => 1)->json_is("/link" => "/etc/passwd");
