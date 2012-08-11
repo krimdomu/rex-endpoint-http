@@ -22,6 +22,7 @@ my $lib = join('/', @base, 'lib');
 require Mojolicious::Commands;
 Mojolicious::Commands->start_app('Rex::Endpoint::HTTP');
 
+__END__
 
 =pod
 
@@ -68,17 +69,17 @@ The format of the file is a Perl Hash Reference. So you have to start and end th
 
 =head2 Configure Hypnotoad
 
-As a default hypnotoad listens on every device on port 8080. This is a thing you want to change on production servers. To configure hypnotoad you have to add a new section.
+As a default hypnotoad listens on every device on port 8080 without encryption. This is a thing you want to change on production servers. To configure hypnotoad you have to add a new section. It is possible to use it without encryption but we advise you not to do that. If you have your own CA or want to create one, please read I<SSL Authentication>.
 
  hypnotoad => {
-    listen => ['http://127.0.0.1:8080'],
+    listen => ['https://127.0.0.1:8433'],
  },
 
 The full file may look like this:
 
  {
     hypnotoad => {
-       listen => ['http://127.0.0.1:8080'],
+       listen => ['https://127.0.0.1:8443'],
     },
  };
 
@@ -88,14 +89,14 @@ If you want to use basic user/password authentication you have to add the locati
 
  user_file => "/path/to/your/user.db",
 
-The fill file may look like this:
+The full file may look like this:
 
  {
     user_file => "/path/to/your/user.db",
        
     # configure hypnotoad
     hypnotoad => {
-       listen => ['http://127.0.0.1:8080'],
+       listen => ['https://127.0.0.1:8443'],
     },
  };
 
@@ -107,16 +108,22 @@ This file exists of 2 columns seperated by ":".
 
 You can create the sha1 strings with the following command.
 
- perl -MDigest::SHA1 -le 'print Digest::SHA1::sha1_hex("your-password")'
+ perl -MDigest::SHA -le 'print Digest::SHA::sha1_hex("your-password")'
 
 
 =head2 SSL Authentication
 
-If you want to use SSL Authentication (with client/server certificates) you have to put a webserver (like Apache) in front of the HTTP Endpoint.
+If you want to use SSL Authentication (with client/server certificates) you have to configure it. Open the file I</etc/rex/httpd.conf> and modify the I<listen> line. And now you can remove the I<user_file> line.
 
-This is an example configuration of Apache:
+ {
+    hypnotoad => {
+       listen => ["https://*:8443?cert=/path/to/your/cert-file.crt&key=/path/to/your/private.key&ca=/path/to/your/ca-file.crt"],
+    },
+ };
 
- <VirtualHost _default_:443>
+It is also possible to put Apache or another Webserver in front of it. This is an example configuration:
+
+ <VirtualHost _default_:8443>
     ServerName your-server.your-domain.tld
     ServerAlias your-server
     
@@ -130,11 +137,7 @@ This is an example configuration of Apache:
     SSLVerifyDepth  10
     SSLOptions +FakeBasicAuth +ExportCertData +StrictRequire
     
-    RequestHeader set SSL_CLIENT_VERIFY  ""
-    
     <Location />
-       RequestHeader set SSL_CLIENT_VERIFY "%{SSL_CLIENT_VERIFY}s"
-       
        ProxyPass http://localhost:8080/
        ProxyPassReverse http://localhost:8080/
    </Location>
@@ -160,49 +163,6 @@ And to create a server/client certificate you can use the following task. Here y
  bash# rex SSL:CA:Server:create --cn=name-of-the-server --password=password [--challenge-password=challenge-password --country=country --state=state --city=city --org=organization --unit=organizational-unit --email=email]
 
 After that you can copy the cert file from ca/certs/$cn.crt and the keyfile from ca/private/$cn.key. The CA Cert file is located at ca/certs/ca.crt.
-
-=head1 DEPLOYMENTS
-
-You can deploy Rex::Endpoint::HTTP in different ways. We suggest to use Apache or nginx as a frontend server to the build in webserver and to offload SSL. So it is possible to authenticate also with an SSL client certificate or with other authentication schemas.
-
-=head2 No Frontend Webserver
-
-This is not the recommended installation but the simpelst one. Please use this only for testing purpose.
-
-You can start the build-in webserver just by executing the following command:
-
- rex_endpoint_http daemon -l 'http://*:80'
-
-After that you can set your Rexfile to connect via http and execute your commands as usual.
-
- # Rexfile
- set connection => "http";
-
-=head2 Simple Apache installation
-
-Just install Apache on your server and create a new SSL enabled virtual host.
-
-Here is an example configuration.
-
- <VirtualHost _default_:443>
-    ServerName d6http01.your-domain.com
-    ServerAlias d6http01
-      
-    SSLEngine on
-      
-    SSLCertificateFile    /etc/ssl/certs/d6http01.crt
-    SSLCertificateKeyFile /etc/ssl/private/d6http01.key
-      
-    ProxyPass / http://localhost:8080/
-    ProxyPassReverse / http://localhost:8080/
- </VirtualHost>
-
-Than you can just start apache and the Rex Endpoint.
-
- bash# /etc/init.d/apache2 start  (debian/ubuntu)
- bash# /etc/init.d/httpd start (redhat compatible)
-    
- bash# rex_endpoint_http daemon -l 'http://127.0.0.1:8080'
 
 =head1 USAGE
 
