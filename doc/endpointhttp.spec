@@ -1,7 +1,7 @@
 %define perl_vendorlib %(eval "`%{__perl} -V:installvendorlib`"; echo $installvendorlib)
 %define perl_vendorarch %(eval "`%{__perl} -V:installvendorarch`"; echo $installvendorarch)
 
-%define real_name Rex
+%define real_name Rex-Endpoint-HTTP
 
 Summary: HTTP Communication Daemon for Rex
 Name: rex-endpoint-http
@@ -15,10 +15,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: perl-Mojolicious
 BuildRequires: perl >= 5.10.1
 BuildRequires: perl(ExtUtils::MakeMaker)
-BuildRequires: perl(Digest::SHA1)
+BuildRequires: perl(Digest::SHA)
 Requires: perl-IO-Socket-SSL >= 1.75
 Requires: perl >= 5.10.1
-Requires: perl-Digest-SHA1 >= 5.10.1
+Requires: perl-Digest-SHA
 Requires: perl-Mojolicious
 Requires: perl-EV
 
@@ -39,11 +39,47 @@ your terminal. This is the HTTP Protocol Endpoint.
 %{__rm} -rf %{buildroot}
 %{__make} pure_install
 mkdir -p %{buildroot}/etc/init.d
-cp doc/rex-endpoint-http.spec %{buildroot}/etc/init.d/rex-endpoint-http
+cp doc/rex-endpoint-http.init %{buildroot}/etc/init.d/rex-endpoint-http
 chmod 0755 %{buildroot}/etc/init.d/rex-endpoint-http
 
 ### Clean up buildroot
 find %{buildroot} -name .packlist -exec %{__rm} {} \;
+
+%post
+
+if [ ! -f "/etc/rex/user.db" ]; then
+   mkdir /etc/rex
+   chmod 0700 /etc/rex
+   _h=$(hostname -s)
+   _p=$(perl -MDigest::SHA1 -le "print Digest::SHA1::sha1_hex('${_h}')")
+
+   echo "Creating default user database. Please change the users and/or passwords."
+   echo "user: root"
+   echo "password: $_h"
+
+   echo "root:$_p" >/etc/rex/user.db
+
+fi
+
+if [ ! -f "/etc/rex/httpd.conf" ]; then
+
+   echo "Creating default configuration file /etc/rex/httpd.conf"
+   echo "Please create your own CA and use SSL Authentication for more security."
+
+   cat >>/etc/rex/httpd.conf <<EOF
+
+{
+   user_file => "/etc/rex/user.db",
+   hypnotoad => {
+      listen => ["https://*:8443"],
+   },
+};
+
+EOF
+
+
+fi
+
 
 
 %clean
@@ -55,6 +91,7 @@ find %{buildroot} -name .packlist -exec %{__rm} {} \;
 %doc %{_mandir}/*
 %{_bindir}/*
 %{perl_vendorlib}/*
+/etc/init.d/rex-endpoint-http
 
 %changelog
 
