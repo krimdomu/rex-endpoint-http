@@ -1,0 +1,37 @@
+#!/bin/bash
+
+if [ ! -f "/etc/rex/user.db" ]; then
+
+   mkdir /etc/rex
+   chmod 0700 /etc/rex
+   _h=$(hostname -s)
+   _p=$(perl -MDigest::SHA1 -le "print Digest::SHA1::sha1_hex('${_h}')")
+
+   echo "Creating default user database. Please change the users and/or passwords."
+   echo "user: root"
+   echo "password: $_h"
+
+   echo "root:$_p" >/etc/rex/user.db
+
+fi
+
+if [ ! -f "/etc/rex/httpd.conf" ]; then
+
+   echo "Creating default configuration file /etc/rex/httpd.conf"
+   echo "Please create your own CA and use SSL Authentication for more security."
+
+   cat >>/etc/rex/httpd.conf <<EOF
+
+{
+   user_file => "/etc/rex/user.db",
+   hypnotoad => {
+      listen => ["https://*:8443"],
+   },
+};
+
+EOF
+
+
+fi
+
+

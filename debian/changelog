@@ -1,4 +1,4 @@
-rex-endpoint-http (0.31.1) unstable; urgency=low
+rex-endpoint-http (0.31.0) unstable; urgency=low
   * inital package
 
  -- Jan Gehring <jan.gehring@gmail.com>  Mon, 06 Aug 2012 20:00:00 +0200
