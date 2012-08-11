@@ -18,7 +18,7 @@ This is a replacement for the default SSH endpoint of Rex.
 
 =item * Mojolicious
 
-=item * Digest::SHA1
+=item * Digest::SHA
 
 =back
 
