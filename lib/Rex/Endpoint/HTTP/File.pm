@@ -4,15 +4,20 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::JSON;
 use MIME::Base64;
 
+use Rex::Endpoint::HTTP::Interface::File;
+
 sub open {
    my $self = shift;
 
    my $ref = $self->req->json;
 
-   CORE::open(my $fh, $ref->{mode}, $self->_path) or return $self->render_json({ok => Mojo::JSON->false});
-   CORE::close($fh);
+   eval {
+      $self->_iface->open($ref->{mode}, $self->_path);
+      $self->render_json({ok => Mojo::JSON->true});
+   } or do {
+      $self->render_json({ok => Mojo::JSON->false});
+   };
 
-   $self->render_json({ok => Mojo::JSON->true});
 }
 
 sub read {
@@ -24,13 +29,13 @@ sub read {
    my $start = $ref->{start};
    my $len = $ref->{len};
 
-   CORE::open(my $fh, "<", $file) or return $self->render_json({ok => Mojo::JSON->false});
-   CORE::seek($fh, $start, 0);
-   my $buf;
-   sysread($fh, $buf, $len);
-   CORE::close($fh);
+   eval {
+      my $buf = $self->_iface->read($file, $start, $len);
+      $self->render_json({ok => Mojo::JSON->true, buf => encode_base64($buf)});
+   } or do {
+      $self->render_json({ok => Mojo::JSON->false});
+   };
 
-   $self->render_json({ok => Mojo::JSON->true, buf => encode_base64($buf)});
 }
 
 # this seems odd, but "write" is not allowed as an action
@@ -43,22 +48,34 @@ sub write_fh {
    my $start = $ref->{start};
    my $buf = decode_base64($ref->{buf});
 
-   CORE::open(my $fh, "+<", $file) or return $self->render_json({ok => Mojo::JSON->false});
-   CORE::seek($fh, $start, 0);
-   print $fh $buf;
-   CORE::close($fh);
-
-   $self->render_json({ok => Mojo::JSON->true});
+   eval {
+      $self->_iface->write_fh($file, $start, $buf);
+      $self->render_json({ok => Mojo::JSON->true});
+   } or do {
+      $self->render_json({ok => Mojo::JSON->false});
+   };
 }
 
 sub seek {
    my $self = shift;
-   $self->render_json({ok => Mojo::JSON->true});
+
+   eval {
+      $self->_iface->seek;
+      $self->render_json({ok => Mojo::JSON->true});
+   } or do {
+      $self->render_json({ok => Mojo::JSON->false});
+   };
 }
 
 sub close {
    my $self = shift;
-   $self->render_json({ok => Mojo::JSON->true});
+
+   eval {
+      $self->_iface->close;
+      $self->render_json({ok => Mojo::JSON->true});
+   } or do {
+      $self->render_json({ok => Mojo::JSON->false});
+   };
 }
 
 sub _path {
@@ -66,6 +83,11 @@ sub _path {
    
    my $ref = $self->req->json;
    return $ref->{path};
+}
+
+sub _iface {
+   my ($self) = @_;
+   return Rex::Endpoint::HTTP::Interface::File->create;
 }
 
 1;

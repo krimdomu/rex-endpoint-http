@@ -1,26 +1,36 @@
-package Rex::Endpoint::HTTP::Fs;
-use Mojo::Base 'Mojolicious::Controller';
+#
+# (c) Jan Gehring <jan.gehring@gmail.com>
+# 
+# vim: set ts=3 sw=3 tw=0:
+# vim: set expandtab:
+   
+package Rex::Endpoint::HTTP::Interface::File::Base;
+   
+use strict;
+use warnings;
 
-use Mojo::JSON;
-use Mojo::Upload;
-use Data::Dumper;
-use MIME::Base64;
+sub new {
+   my $that = shift;
+   my $proto = ref($that) || $that;
+   my $self = { @_ };
 
-use Rex::Endpoint::HTTP::Interface::Fs;
+   bless($self, $proto);
 
-# This action will render a template
+   return $self;
+}
+
 sub ls {
-   my $self = shift;
+   my ($self, $path) = @_;
 
    my @ret;
-   opendir(my $dh, $self->_path) or return $self->render({ok => Mojo::JSON->false});
+   opendir(my $dh, $path) or die($!);
    while(my $entry = readdir($dh)) {
       next if($entry eq "." || $entry eq "..");
       push(@ret, $entry);
    }
    closedir($dh);
 
-   $self->render_json({ok => Mojo::JSON->true, ls => \@ret});
+   return @ret;
 }
 
 sub is_dir {
@@ -270,18 +280,5 @@ sub cp {
 
    $self->render_json({ok => Mojo::JSON->false});
 }
-
-sub _path {
-   my $self = shift;
-   
-   my $ref = $self->req->json;
-   return $ref->{path};
-}
-
-sub _iface {
-   my ($self) = @_;
-   return Rex::Endpoint::HTTP::Interface::Fs->create;
-}
-
 
 1;
