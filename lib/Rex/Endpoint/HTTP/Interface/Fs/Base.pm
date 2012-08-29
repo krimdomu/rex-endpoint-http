@@ -34,50 +34,48 @@ sub ls {
 }
 
 sub is_dir {
-   my $self = shift;
+   my ($self, $path) = @_;
 
-   if(-d $self->_path) {
-      $self->render_json({ok => Mojo::JSON->true});
+   if(-d $path) {
+      return 1;
    }
    else {
-      $self->render_json({ok => Mojo::JSON->false});
+      return 0;
    }
 }
 
 sub is_file {
-   my $self = shift;
+   my ($self, $file) = @_;
 
-   if(-f $self->_path) {
-      $self->render_json({ok => Mojo::JSON->true});
+   if(-f $file) {
+      return 1;
    }
    else {
-      $self->render_json({ok => Mojo::JSON->false});
+      return 0;
    }
 }
 
 sub unlink {
-   my $self = shift;
+   my ($self, $path) = @_;
 
-   CORE::unlink($self->_path) or 
-            return $self->render_json({ok => Mojo::JSON->false});
+   CORE::unlink($path) or die($!);
             
-   $self->render_json({ok => Mojo::JSON->true});
+   return 1;
 }
 
 sub mkdir {
-   my $self = shift;
+   my ($self, $path) = @_;
    
-   CORE::mkdir($self->_path) or
-            return $self->render_json({ok => Mojo::JSON->false});
+   CORE::mkdir($path) or die($!);
 
-   $self->render_json({ok => Mojo::JSON->true});
+   return 1;
 }
 
 sub stat {
-   my $self = shift;
+   my ($self, $path) = @_;
 
    if(my ($dev, $ino, $mode, $nlink, $uid, $gid, $rdev, $size,
-               $atime, $mtime, $ctime, $blksize, $blocks) = CORE::stat($self->_path)) {
+               $atime, $mtime, $ctime, $blksize, $blocks) = CORE::stat($path)) {
 
          my %ret;
 
@@ -88,122 +86,104 @@ sub stat {
          $ret{'atime'} = $atime;
          $ret{'mtime'} = $mtime;
 
-         return $self->render_json({ok => Mojo::JSON->true, stat => \%ret});
+         return \%ret;
    }
 
-   $self->render_json({ok => Mojo::JSON->false}, status => 404);
+   return 0;
 }
 
 sub is_readable {
-   my $self = shift;
+   my ($self, $path) = @_;
 
-   if(-r $self->_path) {
-      $self->render_json({ok => Mojo::JSON->true});
+   if(-r $path) {
+      return 1;
    }
 
-   $self->render_json({ok => Mojo::JSON->false});
+   return 0;
 }
 
 sub is_writable {
-   my $self = shift;
+   my ($self, $path) = @_;
 
-   if(-w $self->_path) {
-      $self->render_json({ok => Mojo::JSON->true, is_writable => Mojo::JSON->true});
+   if(-w $path) {
+      return 1;
    }
+
+   return 0;
 }
 
 sub readlink {
-   my $self = shift;
+   my ($self, $path) = @_;
 
-   my $link = CORE::readlink($self->_path);
+   my $link = CORE::readlink($path);
 
-   $self->render_json({ok => Mojo::JSON->true, link => $link});
+   return $link;
 }
 
 sub rename {
-   my $self = shift;
+   my ($self, $old, $new) = @_;
 
-   my $ref = $self->req->json;
-   my $old = $ref->{old};
-   my $new = $ref->{new};
+   CORE::rename($old, $new) or die($!);
 
-   CORE::rename($old, $new) or
-      return $self->render_json({ok => Mojo::JSON->false});
-
-   $self->render_json({ok => Mojo::JSON->true});
+   return 1;
 }
 
 sub glob {
-   my $self = shift;
+   my ($self, $glob) = @_;
 
-   my @glob = CORE::glob($self->req->json->{"glob"});
+   my @glob = CORE::glob($glob);
 
-   $self->render_json({ok => Mojo::JSON->true, glob => \@glob});
+   return @glob;
 }
 
 sub upload {
-   my $self = shift;
+   my ($self, $path, $upload) = @_;
 
-   my $path = $self->req->param("path");
-   my $upload = $self->req->upload("content");
-
-   open(my $fh, ">", $path) or return $self->render_json({ok => Mojo::JSON->false});
+   open(my $fh, ">", $path) or die($!);
    print $fh $upload->slurp;
    close($fh);
 
-   $self->render_json({ok => Mojo::JSON->true});
+   return 1;
 }
 
 sub download {
-   my $self = shift;
+   my ($self, $path) = @_;
 
-   if(! -f $self->_path) {
-      return $self->render_json({ok => Mojo::JSON->false}, status => 404);
+   if(! -f $path) {
+      die("File not found.");
    }
 
-   my $content = eval { local(@ARGV, $/) = ($self->_path); <>; };
+   my $content = eval { local(@ARGV, $/) = ($path); <>; };
 
-   $self->render_json({
-      ok => Mojo::JSON->true,
-      content => encode_base64($content),
-   });
+   return $content;
 }
 
 sub ln {
-   my $self = shift;
+   my ($self, $from, $to) = @_;
 
-   my $ref = $self->req->json;
-
-   if(-f $ref->{to}) {
-      CORE::unlink($ref->{to});
+   if(-f $to) {
+      CORE::unlink($to) or die($!);
    }
 
-   CORE::symlink($ref->{from}, $ref->{to}) and
-      return $self->render_json({ok => Mojo::JSON->true});
+   CORE::symlink($from, $to) or die($!);
 
-   $self->render_json({ok => Mojo::JSON->false});
+   return 1;
 }
 
 sub rmdir {
-   my $self = shift;
+   my ($self, $path) = @_;
 
-   system("rm -rf " . $self->_path);
+   system("rm -rf " . $path);
 
    if($? == 0) {
-      return $self->render_json({ok => Mojo::JSON->true});
+      return 1;
    }
 
-   $self->render_json({ok => Mojo::JSON->false});
+   die("Error deleting directory.");
 }
 
 sub chown {
-   my $self = shift;
-
-   my $ref = $self->req->json;
-
-   my $user = $ref->{user};
-   my $file = $self->_path;
-   my $options = $ref->{options};
+   my ($self, $user, $file, $options) = @_;
 
    my $recursive = "";
    if(exists $options->{"recursive"} && $options->{"recursive"} == 1) {
@@ -213,20 +193,14 @@ sub chown {
    system("chown $recursive $user $file");
 
    if($? == 0) {
-      return $self->render_json({ok => Mojo::JSON->true});
+      return 1;
    }
 
-   $self->render_json({ok => Mojo::JSON->false});
+   die("Error changing ownership of file");
 }
 
 sub chgrp {
-   my $self = shift;
-
-   my $ref = $self->req->json;
-   my $group = $ref->{group};
-   my $file = $self->_path;
-
-   my $options = $ref->{options};
+   my ($self, $group, $file, $options) = @_;
 
    my $recursive = "";
    if(exists $options->{"recursive"} && $options->{"recursive"} == 1) {
@@ -236,19 +210,14 @@ sub chgrp {
    system("chgrp $recursive $group $file");
 
    if($? == 0) {
-      return $self->render_json({ok => Mojo::JSON->true});
+      return 1;
    }
 
-   $self->render_json({ok => Mojo::JSON->false});
+   die("Error chaning group ownership of file");
 }
 
 sub chmod {
-   my $self = shift;
-
-   my $ref = $self->req->json;
-   my $mode = $ref->{mode};
-   my $file = $self->_path;
-   my $options = $ref->{options};
+   my ($self, $mode, $file, $options) = @_;
 
    my $recursive = "";
    if(exists $options->{"recursive"} && $options->{"recursive"} == 1) {
@@ -258,27 +227,22 @@ sub chmod {
    system("chmod $recursive $mode $file");
 
    if($? == 0) {
-      return $self->render_json({ok => Mojo::JSON->true});
+      return 1;
    }
 
-   $self->render_json({ok => Mojo::JSON->false});
+   die("Error changing file permission");
 }
 
 sub cp {
-   my $self = shift;
-
-   my $ref = $self->req->json;
-
-   my $source = $ref->{source};
-   my $dest   = $ref->{dest};
+   my ($self, $source, $dest) = @_;
 
    system("cp -R $source $dest");
 
    if($? == 0) {
-      return $self->render_json({ok => Mojo::JSON->true});
+      return 1;
    }
 
-   $self->render_json({ok => Mojo::JSON->false});
+   die("Error copying file");
 }
 
 1;

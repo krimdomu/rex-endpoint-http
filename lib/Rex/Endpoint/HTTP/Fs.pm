@@ -12,15 +12,12 @@ use Rex::Endpoint::HTTP::Interface::Fs;
 sub ls {
    my $self = shift;
 
-   my @ret;
-   opendir(my $dh, $self->_path) or return $self->render({ok => Mojo::JSON->false});
-   while(my $entry = readdir($dh)) {
-      next if($entry eq "." || $entry eq "..");
-      push(@ret, $entry);
-   }
-   closedir($dh);
-
-   $self->render_json({ok => Mojo::JSON->true, ls => \@ret});
+   eval {
+      my @ret = $self->_iface->ls($self->_path);
+      $self->render_json({ok => Mojo::JSON->true, ls => \@ret});
+   } or do {
+      $self->render_json({ok => Mojo::JSON->false});
+   };
 }
 
 sub is_dir {
