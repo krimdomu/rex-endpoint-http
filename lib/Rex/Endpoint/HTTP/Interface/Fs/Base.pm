@@ -4,7 +4,7 @@
 # vim: set ts=3 sw=3 tw=0:
 # vim: set expandtab:
    
-package Rex::Endpoint::HTTP::Interface::File::Base;
+package Rex::Endpoint::HTTP::Interface::Fs::Base;
    
 use strict;
 use warnings;
@@ -89,7 +89,7 @@ sub stat {
          return \%ret;
    }
 
-   return 0;
+   die("Not found");
 }
 
 sub is_readable {
@@ -115,7 +115,7 @@ sub is_writable {
 sub readlink {
    my ($self, $path) = @_;
 
-   my $link = CORE::readlink($path);
+   my $link = CORE::readlink($path) or die($!);
 
    return $link;
 }
@@ -131,9 +131,9 @@ sub rename {
 sub glob {
    my ($self, $glob) = @_;
 
-   my @glob = CORE::glob($glob);
+   my @ret = CORE::glob($glob);
 
-   return @glob;
+   return @ret;
 }
 
 sub upload {
