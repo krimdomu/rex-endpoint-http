@@ -46,10 +46,12 @@ sub write_fh {
 
    CORE::open(my $fh, "+<", $file) or die($!);
    CORE::seek($fh, $start, 0);
-   print $fh $buf;
+   my $bytes_written = syswrite($fh, $buf);
    CORE::close($fh);
 
-   return 1;
+   if(! defined $bytes_written) { die("Error writing to filehandle."); }
+
+   return $bytes_written;
 }
 
 sub seek {

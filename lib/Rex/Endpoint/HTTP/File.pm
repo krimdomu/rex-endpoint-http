@@ -49,8 +49,8 @@ sub write_fh {
    my $buf = decode_base64($ref->{buf});
 
    eval {
-      $self->_iface->write_fh($file, $start, $buf);
-      $self->render_json({ok => Mojo::JSON->true});
+      my $bytes_written = $self->_iface->write_fh($file, $start, $buf);
+      $self->render_json({ok => Mojo::JSON->true, bytes_written => $bytes_written});
    } or do {
       $self->render_json({ok => Mojo::JSON->false});
    };
