@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::JSON;
 use Win32::API;
 
-use Rex::Endpoint:HTTP::Interface::System;
+use Rex::Endpoint::HTTP::Interface::System;
 
 sub free {
    my $self = shift;
