@@ -178,6 +178,8 @@ BEGIN {
     $ENV{MOJO_MAX_MESSAGE_SIZE} = 2 * 1024 * 1024 * 1024; # 2 GB
 };
 
+use Rex::Endpoint::HTTP::Interface::System;
+
 # This method will run once at server start
 sub startup {
    my $self = shift;
@@ -247,6 +249,10 @@ sub startup {
    $r->post("/file/write_fh")->to("file#write_fh");
 
    $r->post("/file/seek")->to("file#seek");
+
+   # load system specific routes
+   my $sys = Rex::Endpoint::HTTP::Interface::System->create;
+   $sys->set_routes($r);
 }
 
 1;
