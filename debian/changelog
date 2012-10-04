@@ -1,3 +1,8 @@
+rex-endpoint-http (0.33.3) unstable; urgency=low
+  * updated package
+
+ -- Jan Gehring <jan.gehring@gmail.com>  Thu, 04 Oct 2012 20:00:00 +0200
+
 rex-endpoint-http (0.31.1) unstable; urgency=low
   * inital package
 
