@@ -66,6 +66,12 @@ sub cp {
    die("Error copying file");
 }
 
+sub rename {
+   my ($self, $old, $new) = @_;
 
+   system("move $old $new >/dev/null 2>&1");
+
+   if($? == 0) { return 1; }
+}
 
 1;

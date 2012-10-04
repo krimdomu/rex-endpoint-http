@@ -22,4 +22,12 @@ sub new {
    return $self;
 }
 
+sub rename {
+   my ($self, $old, $new) = @_;
+
+   system("/bin/mv $old $new >/dev/null 2>&1");
+
+   if($? == 0) { return 1; }
+}
+
 1;
