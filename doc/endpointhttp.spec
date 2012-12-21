@@ -5,11 +5,11 @@
 
 Summary: HTTP Communication Daemon for Rex
 Name: rex-endpoint-http
-Version: 0.33.3
+Version: 0.35.0
 Release: 1
 License: Apache 2.0
 Group: Utilities/System
-Source: http://search.cpan.org/CPAN/authors/id/J/JF/JFRIED/Rex-Endpoint-HTTP-0.33.3.tar.gz
+Source: http://search.cpan.org/CPAN/authors/id/J/JF/JFRIED/Rex-Endpoint-HTTP-0.35.0.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires: perl-Mojolicious
@@ -94,6 +94,9 @@ fi
 /etc/init.d/rex-endpoint-http
 
 %changelog
+
+* Fri Dec 21 2012 Jan Gehring <jan.gehring at, gmail.com> 0.35.0-1
+- updated package
 
 * Thu Oct 4 2012 Jan Gehring <jan.gehring at, gmail.com> 0.33.3-1
 - updated package
