@@ -22,4 +22,11 @@ sub new {
    return $self;
 }
 
+sub exec {
+   my ($self, $cmd) = @_;
+
+   my $out = qx{LC_ALL=C $cmd};
+
+   return $out;
+}
 1;

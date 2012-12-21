@@ -172,7 +172,7 @@ You can download an init script from I<https://github.com/krimdomu/rex-endpoint-
 package Rex::Endpoint::HTTP;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = "0.33.3";
+our $VERSION = "0.35.0";
 
 BEGIN {
     $ENV{MOJO_MAX_MESSAGE_SIZE} = 2 * 1024 * 1024 * 1024; # 2 GB
